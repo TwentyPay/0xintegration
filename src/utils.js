@@ -1,11 +1,11 @@
 'use strict'
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const BigNumber = require('bignumber.js');
-const process = require('process');
 const Web3 = require('web3');
 
 const API_QUOTE_URL = 'https://api.0x.org/swap/v1/quote';
-const { MNEMONIC, RPC_URL } = process.env;
+const MNEMONIC = 'walnut mutual phone police nut tribe cross coast donate early urban target';
+const RPC_URL = 'http://localhost:7545';
 
 function createQueryString(params) {
     return Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
@@ -24,6 +24,8 @@ function waitForTxSuccess(tx) {
 }
 
 function createProvider() {
+    console.info('MNEMONIC is ' + MNEMONIC)
+    console.info('RPC_URL is ' + RPC_URL)
     const provider = /^ws?:\/\//.test(RPC_URL)
         ? new Web3.providers.WebsocketProvider(RPC_URL)
         : new Web3.providers.HttpProvider(RPC_URL);
