@@ -26,3 +26,4 @@ To get the contract swap ready, in a separate terminal (but also in your project
 ```bash
 npm run deploy-fork # Only need to do this once per ganache instance.
 ```
+Once you do this, you'll see a "contract address" field returned in your terminal for the "SimpleTokenSwap" contract. You'll need this address for the frontend. 
