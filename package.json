@@ -5,7 +5,7 @@
     "license": "MIT",
     "scripts": {
         "postinstall": "truffle compile",
-        "start-fork": "ganache-cli -m \"${npm_package_config_mnemonic}\" -f ${RPC_URL} -i 1 -p 7545",
+        "start-fork": "ganache-cli -m \"${npm_package_config_mnemonic}\" -f ${RPC_URL} -i 1 --unlock \"${npm_package_config_uni_address}\" -p 7545",
         "print-hd-wallet-accounts": "MNEMONIC=\"${npm_package_config_mnemonic}\" node src/print-hd-wallet-accounts.js",
         "compile": "truffle compile",
         "deploy-live": "MNEMONIC=\"${npm_package_config_mnemonic}\" truffle migrate -f 2",
@@ -17,7 +17,8 @@
     },
     "config": {
         "mnemonic": "walnut mutual phone police nut tribe cross coast donate early urban target",
-        "forked_deployed_address": "0x5721931aa166C5d3631a7715F9bE6BE3AE729333"
+        "forked_deployed_address": "0x5721931aa166C5d3631a7715F9bE6BE3AE729333",
+        "uni_address": "0x69C5888Ecd21287FBdac5a43D1558Bf73c51E38B"
     },
     "dependencies": {
         "@truffle/hdwallet-provider": "^1.1.0",

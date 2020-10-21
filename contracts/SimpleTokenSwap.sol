@@ -8,7 +8,7 @@ interface IERC20 {
     function transfer(address to, uint256 amount) external returns (bool);
 }
 
-// A partial WETH interfaec.
+// A partial WETH interface.
 interface IWETH is IERC20 {
     function deposit() external payable;
 }
@@ -17,7 +17,7 @@ interface IWETH is IERC20 {
 // NOT to be used in production.
 contract SimpleTokenSwap {
 
-    event BoughtTokens(IERC20 sellToken, IERC20 buyToken, uint256 boughtAmount);
+    event SwappedTokens(IERC20 sellToken, IERC20 buyToken, uint256 soldAmount, uint256 boughtAmount);
 
     // The WETH contract.
     IWETH public immutable WETH;
@@ -37,7 +37,7 @@ contract SimpleTokenSwap {
     // Payable fallback to allow this contract to receive protocol fee refunds.
     receive() external payable {}
 
-    // Transfer tokens held by this contrat to the sender/owner.
+    // Transfer tokens held by this contract to the sender/owner.
     function withdrawToken(IERC20 token, uint256 amount)
         external
         onlyOwner
@@ -78,8 +78,9 @@ contract SimpleTokenSwap {
         onlyOwner
         payable // Must attach ETH equal to the `value` field from the API response.
     {
-        // Track our balance of the buyToken to determine how much we've bought.
+        // Track our balance of the buyToken and sellToken to determine how much we've bought/sold.
         uint256 boughtAmount = buyToken.balanceOf(address(this));
+        uint256 soldAmount = sellToken.balanceOf(address(this));
 
         // Give `spender` an infinite allowance to spend this contract's `sellToken`.
         // Note that for some tokens (e.g., USDT, KNC), you must first reset any existing
@@ -94,6 +95,7 @@ contract SimpleTokenSwap {
 
         // Use our current buyToken balance to determine how much we've bought.
         boughtAmount = buyToken.balanceOf(address(this)) - boughtAmount;
-        emit BoughtTokens(sellToken, buyToken, boughtAmount);
+        soldAmount = soldAmount - sellToken.balanceOf(address(this));
+        emit SwappedTokens(sellToken, buyToken, soldAmount, boughtAmount);
     }
 }

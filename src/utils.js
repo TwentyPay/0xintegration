@@ -32,7 +32,13 @@ function createProvider() {
     if (!MNEMONIC) {
         return provider;
     }
-    return new HDWalletProvider({ mnemonic: MNEMONIC, providerOrUrl: provider });
+    return new HDWalletProvider({
+      mnemonic: MNEMONIC,
+      providerOrUrl: provider,
+      numberOfAddresses: 2,
+      shareNonce: true,
+      derivationPath: "m/44'/60'/0'/0/"
+     });
 }
 
 function createWeb3() {
