@@ -40,7 +40,8 @@ contract SimpleTokenSwap {
     // Transfer tokens held by this contract to the sender/owner.
     function withdrawToken(IERC20 token, uint256 amount)
         external
-        onlyOwner
+        // removing onlyOwner for demo purposes only!!!
+        // onlyOwner
     {
         require(token.transfer(msg.sender, amount));
     }
@@ -48,7 +49,8 @@ contract SimpleTokenSwap {
     // Transfer ETH held by this contrat to the sender/owner.
     function withdrawETH(uint256 amount)
         external
-        onlyOwner
+        // removing onlyOwner for demo purposes only!!!
+        // onlyOwner
     {
         msg.sender.transfer(amount);
     }
@@ -75,7 +77,8 @@ contract SimpleTokenSwap {
         bytes calldata swapCallData
     )
         external
-        onlyOwner
+        // removing onlyOwner for demo purposes only!!!
+        // onlyOwner
         payable // Must attach ETH equal to the `value` field from the API response.
     {
         // Track our balance of the buyToken and sellToken to determine how much we've bought/sold.
@@ -96,6 +99,50 @@ contract SimpleTokenSwap {
         // Use our current buyToken balance to determine how much we've bought.
         boughtAmount = buyToken.balanceOf(address(this)) - boughtAmount;
         soldAmount = soldAmount - sellToken.balanceOf(address(this));
+        emit SwappedTokens(sellToken, buyToken, soldAmount, boughtAmount);
+    }
+
+    // Swaps ERC20->ERC20 tokens held by this contract using a 0x-API quote.
+    function fillMerchantQuote(
+        // The `sellTokenAddress` field from the API response.
+        IERC20 sellToken,
+        // The `buyTokenAddress` field from the API response.
+        IERC20 buyToken,
+        // The `allowanceTarget` field from the API response.
+        address spender,
+        // The `to` field from the API response.
+        address payable swapTarget,
+        // The `data` field from the API response.
+        bytes calldata swapCallData
+    )
+        external
+        // removing onlyOwner for demo purposes only!!!
+        // onlyOwner
+        payable // Must attach ETH equal to the `value` field from the API response.
+    {
+        // Track our balance of the buyToken and sellToken to determine how much we've bought/sold.
+        uint256 boughtAmount = buyToken.balanceOf(address(this));
+        uint256 soldAmount = sellToken.balanceOf(address(this));
+        address merchant = 0xe083437A8FD52A9A4B6B3CAbec0279Db5dAD8043;
+
+        // Give `spender` an infinite allowance to spend this contract's `sellToken`.
+        // Note that for some tokens (e.g., USDT, KNC), you must first reset any existing
+        // allowance to 0 before being able to update it.
+        require(sellToken.approve(spender, uint256(-1)));
+        // Call the encoded swap function call on the contract at `swapTarget`,
+        // passing along any ETH attached to this function call to cover protocol fees.
+        (bool success,) = swapTarget.call{value: msg.value}(swapCallData);
+        require(success, 'SWAP_CALL_FAILED');
+        // Refund any unspent protocol fees to the sender.
+        msg.sender.transfer(address(this).balance);
+
+        // Use our current buyToken balance to determine how much we've bought.
+        boughtAmount = buyToken.balanceOf(address(this)) - boughtAmount;
+        soldAmount = soldAmount - sellToken.balanceOf(address(this));
+
+        // Send converted tokens to merchant address
+        buyToken.transfer(merchant, boughtAmount);
+
         emit SwappedTokens(sellToken, buyToken, soldAmount, boughtAmount);
     }
 }
