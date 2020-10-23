@@ -6,6 +6,7 @@ interface IERC20 {
     function balanceOf(address owner) external view returns (uint256);
     function approve(address spender, uint256 amount) external returns (bool);
     function transfer(address to, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint value) external returns (bool);
 }
 
 // A partial WETH interface.
@@ -53,6 +54,12 @@ contract SimpleTokenSwap {
         // onlyOwner
     {
         msg.sender.transfer(amount);
+    }
+
+    function depositToken(IERC20 token, uint256 amount)
+        external
+    {
+        require(token.transferFrom(msg.sender, address(this), amount));
     }
 
     // Transfer ETH into this contract and wrap it into WETH.
